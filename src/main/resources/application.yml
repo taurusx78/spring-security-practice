@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/security?serverTimezone=Asia/Seoul
+    username: root
+    password: 1234
+
+  jpa:
+    open-in-view: true # Controller 계층까지 영속성 컨텍스트 유지
+    hibernate:
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true # SQL 콘솔 출력 (배포 시 삭제)
+
+  output:
+    ansi:
+      enabled: always
+
+  thymeleaf:
+    cache: false
+
+  devtools:
+    livereload:
+      enabled: true # View 계층 수정 시 자동 reload
+    restart:
+      enabled: true # 클래스패스에 속한 파일 수정 시 자동 restart
+
+  main:
+    allow-bean-definition-overrideing: true # 빈 이름 충돌 시 덮어쓰도록 설정
