@@ -5,7 +5,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.security.domain.Account;
+import com.example.security.domain.entity.Account;
 import com.example.security.repository.UserRepository;
 import com.example.security.service.UserService;
 

@@ -1,4 +1,4 @@
-package com.example.security.domain;
+package com.example.security.domain.dto;
 
 import lombok.Builder;
 import lombok.Getter;
