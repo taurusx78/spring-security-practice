@@ -1,7 +1,9 @@
 package com.example.security.security.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -17,6 +19,9 @@ import com.example.security.security.provider.CustomAuthenticationProvider;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private AuthenticationDetailsSource authenticationDetailsSource;
 
     // 비밀번호를 암호화하는 PasswordEncoder 빈 생성
     @Bean
@@ -41,30 +46,6 @@ public class SecurityConfig {
         return new CustomAuthenticationProvider();
     }
 
-    // 개발 테스트용으로 인메모리에 사용자 생성
-    // (참고) https://covenant.tistory.com/277
-    // @Bean
-    // public InMemoryUserDetailsManager userDetailsService() {
-    // String password = passwordEncoder().encode("1111");
-
-    // UserDetails user = User.withUsername("user")
-    // .password(password)
-    // .roles("USER")
-    // .build();
-
-    // UserDetails manager = User.withUsername("manager")
-    // .password(password)
-    // .roles("MANAGER", "USER")
-    // .build();
-
-    // UserDetails admin = User.withUsername("admin")
-    // .password(password)
-    // .roles("ADMIN", "MANAGER", "USER")
-    // .build();
-
-    // return new InMemoryUserDetailsManager(user, manager, admin);
-    // }
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
@@ -74,7 +55,12 @@ public class SecurityConfig {
                 .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .formLogin();
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/login_proc")
+                .authenticationDetailsSource(authenticationDetailsSource)
+                .defaultSuccessUrl("/")
+                .permitAll(); // 로그인 관련 URL에 인증되지 않은 사용자도 접근 가능하도록 설정
 
         return http.build();
     }
