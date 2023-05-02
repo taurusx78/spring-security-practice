@@ -3,6 +3,7 @@ package com.example.security.security.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -10,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.example.security.security.provider.CustomAuthenticationProvider;
 
 @Configuration
 @EnableWebSecurity
@@ -26,7 +29,16 @@ public class SecurityConfig {
     @Bean
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+        ProviderManager authenticationManager = (ProviderManager) authenticationConfiguration
+                .getAuthenticationManager();
+        // 직접 구현한 CustomAuthenticationProvider 클래스를 이용해 인증을 진행하도록 Provider 추가
+        authenticationManager.getProviders().add(customAuthenticationProvider());
+        return authenticationManager;
+    }
+
+    @Bean
+    CustomAuthenticationProvider customAuthenticationProvider() {
+        return new CustomAuthenticationProvider();
     }
 
     // 개발 테스트용으로 인메모리에 사용자 생성

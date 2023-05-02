@@ -8,7 +8,7 @@ spring:
   jpa:
     open-in-view: true # Controller 계층까지 영속성 컨텍스트 유지
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true # SQL 콘솔 출력 (배포 시 삭제)
