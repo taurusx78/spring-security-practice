@@ -13,7 +13,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 
+import com.example.security.security.handler.CustomAccessDeniedHandler;
+import com.example.security.security.handler.CustomAuthenticationFailureHandler;
+import com.example.security.security.handler.CustomAuthenticationSuccessHandler;
 import com.example.security.security.provider.CustomAuthenticationProvider;
 
 @Configuration
@@ -22,6 +26,12 @@ public class SecurityConfig {
 
     @Autowired
     private AuthenticationDetailsSource authenticationDetailsSource;
+
+    @Autowired
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    
+    @Autowired
+    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     // 비밀번호를 암호화하는 PasswordEncoder 빈 생성
     @Bean
@@ -49,7 +59,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/", "/user").permitAll()
+                .antMatchers("/", "/user", "/login*").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
@@ -60,12 +70,25 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login_proc")
                 .authenticationDetailsSource(authenticationDetailsSource)
                 .defaultSuccessUrl("/")
+                .successHandler(customAuthenticationSuccessHandler) // (주의) defaultSuccessUrl()보다 뒤쪽에 위치해야 함
+                .failureHandler(customAuthenticationFailureHandler)
                 .permitAll(); // 로그인 관련 URL에 인증되지 않은 사용자도 접근 가능하도록 설정
+        
+        http.exceptionHandling()
+        		.accessDeniedHandler(accessDeniedHandler()); // 인가 예외 발생 시 작동
 
         return http.build();
     }
 
-    // 아래 요청에 대해선 시큐리티 보안이 적용되지 않도록 설정 (WebIgnore 설정)
+    // 인가 예외 발생 시 이동할 에러페이지 설정
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+    	CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+    	accessDeniedHandler.setErrorPage("/denied");
+		return accessDeniedHandler;
+	}
+
+	// 아래 요청에 대해선 시큐리티 보안이 적용되지 않도록 설정 (WebIgnore 설정)
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().antMatchers("/css/**", "/images/**", "/js/**");
