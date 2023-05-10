@@ -1,10 +1,14 @@
 package com.example.security.domain.dto;
 
+import java.io.Serializable;
+
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
-public class AccountDto {
+public class AccountDto implements Serializable {
     
     private String username;
     private String password;

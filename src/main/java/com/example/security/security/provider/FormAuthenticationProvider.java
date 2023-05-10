@@ -15,7 +15,7 @@ import com.example.security.security.service.CustomUserDetails;
 
 // 강의자료 p.110 참고
 
-public class CustomAuthenticationProvider implements AuthenticationProvider {
+public class FormAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -56,6 +56,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     // CustomAuthenticationProvider 클래스를 이용해 사용자 인증을 진행하도록 설정
     @Override
     public boolean supports(Class<?> authentication) {
-        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+        return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
 }

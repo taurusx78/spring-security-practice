@@ -27,4 +27,4 @@ spring:
       enabled: true # 클래스패스에 속한 파일 수정 시 자동 restart
 
   main:
-    allow-bean-definition-overrideing: true # 빈 이름 충돌 시 덮어쓰도록 설정
+    allow-bean-definition-overriding: true # 빈 이름 충돌 시 덮어쓰도록 설정
