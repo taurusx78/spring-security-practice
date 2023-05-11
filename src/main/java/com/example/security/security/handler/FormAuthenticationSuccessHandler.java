@@ -16,7 +16,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class FormAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private RequestCache requestCache = new HttpSessionRequestCache();
 
@@ -24,9 +24,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-            Authentication authentication) throws IOException, ServletException {
-        System.out.println("CustomAuthenticationHandler 클래스의 onAuthenticationSuccess() 실행됨");
-        
+            Authentication authentication) throws IOException, ServletException {        
         setDefaultTargetUrl("/");
         
         SavedRequest savedRequest = requestCache.getRequest(request, response);

@@ -30,6 +30,7 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
 
+        // AjaxAuthenticationToken 생성 후 반환
         return new AjaxAuthenticationToken(customUserDetails.getAccount(), null, customUserDetails.getAuthorities());
     }
 

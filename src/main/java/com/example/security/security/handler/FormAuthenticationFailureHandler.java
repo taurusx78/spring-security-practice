@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
+public class FormAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
@@ -21,7 +21,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		String errorMessage = "Authentication Failure";
 		
 		if (exception instanceof BadCredentialsException) {
-			errorMessage = "Bad Credentials Exception";
+			errorMessage = "Invalid Username or Password";
 		} else if (exception instanceof InsufficientAuthenticationException) {
 			errorMessage = "Insufficient Authentication Exception";
 		}

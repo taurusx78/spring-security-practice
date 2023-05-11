@@ -17,12 +17,18 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.security.security.common.AjaxLoginAuthenticationEntryPoint;
 import com.example.security.security.filter.AjaxLoginProcessingFilter;
-import com.example.security.security.handler.CustomAccessDeniedHandler;
-import com.example.security.security.handler.CustomAuthenticationFailureHandler;
-import com.example.security.security.handler.CustomAuthenticationSuccessHandler;
+import com.example.security.security.handler.AjaxAccessDeniedHandler;
+import com.example.security.security.handler.AjaxAuthenticationFailureHandler;
+import com.example.security.security.handler.AjaxAuthenticationSuccessHandler;
+import com.example.security.security.handler.FormAccessDeniedHandler;
+import com.example.security.security.handler.FormAuthenticationFailureHandler;
+import com.example.security.security.handler.FormAuthenticationSuccessHandler;
 import com.example.security.security.provider.AjaxAuthenticationProvider;
 import com.example.security.security.provider.FormAuthenticationProvider;
 
@@ -34,10 +40,10 @@ public class SecurityConfig {
     private AuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private FormAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Autowired
-    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+    private FormAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     // 비밀번호를 암호화하는 PasswordEncoder 빈 생성
     @Bean
@@ -77,9 +83,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http.antMatcher("/api/**").authorizeRequests()
                 .antMatchers("/", "/user", "/login*").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
+                .antMatchers("/api/messages").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated()
@@ -94,11 +101,13 @@ public class SecurityConfig {
                 .permitAll(); // 로그인 관련 URL에 인증되지 않은 사용자도 접근 가능하도록 설정
 
         http.exceptionHandling()
+                .authenticationEntryPoint(new AjaxLoginAuthenticationEntryPoint())
+                .accessDeniedHandler(ajaxAccessDeniedHandler()) // Ajax 인가 예외 발생 시 작동
                 .accessDeniedHandler(accessDeniedHandler()) // 인가 예외 발생 시 작동
                 .and()
                 // UsernamePasswordAuthenticationFilter 필터 앞에 AjaxLoginProcessingFilter 필터 설정
                 .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
-                
+
         http.csrf().disable();
 
         return http.build();
@@ -107,7 +116,7 @@ public class SecurityConfig {
     // 인가 예외 발생 시 이동할 에러페이지 설정
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
-        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        FormAccessDeniedHandler accessDeniedHandler = new FormAccessDeniedHandler();
         accessDeniedHandler.setErrorPage("/denied");
         return accessDeniedHandler;
     }
@@ -123,6 +132,26 @@ public class SecurityConfig {
     public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter();
         filter.setAuthenticationManager(ajaxAuthenticationManager());
+        filter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
+        filter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
         return filter;
+    }
+
+    // Ajax 요청에 대한 인증 성공 시 호출할 핸들러
+    @Bean
+    public AuthenticationSuccessHandler ajaxAuthenticationSuccessHandler() {
+        return new AjaxAuthenticationSuccessHandler();
+    }
+
+    // Ajax 요청에 대한 인증 실패 시 호출할 핸들러
+    @Bean
+    public AuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
+        return new AjaxAuthenticationFailureHandler();
+    }
+
+    // Ajax 요청에 대한 인증 실패 시 호출할 핸들러
+    @Bean
+    public AccessDeniedHandler ajaxAccessDeniedHandler() {
+        return new AjaxAccessDeniedHandler();
     }
 }
